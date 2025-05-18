@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Remote Control Bot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #2c2f33;
+            color: #ffffff;
+            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .hero {
+            background-color: #7289da;
+            background-image: linear-gradient(45deg, #7289da, #4e5d94);
+            padding: 50px 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .status-container {
+            background-color: #36393f;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online {
+            background-color: #43b581;
+        }
+        .status-offline {
+            background-color: #f04747;
+        }
+        .card {
+            background-color: #36393f;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .command-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .command-table th, .command-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #4f545c;
+        }
+        .command-table th {
+            background-color: #4f545c;
+            color: #ffffff;
+        }
+        .command-table tr:hover {
+            background-color: #32353b;
+        }
+        .command-name {
+            color: #7289da;
+            font-weight: bold;
+        }
+        .system-info {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        .info-box {
+            flex: 1 1 200px;
+            background-color: #32353b;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px;
+        }
+        .info-box h4 {
+            margin-top: 0;
+            color: #7289da;
+        }
+        .logs {
+            background-color: #2f3136;
+            color: #dcddde;
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .timestamp {
+            color: #72767d;
+            font-size: 0.8rem;
+            margin-right: 8px;
+        }
+        .log-info {
+            color: #7289da;
+        }
+        .log-warning {
+            color: #faa61a;
+        }
+        .log-error {
+            color: #f04747;
+        }
+        .screenshot {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #72767d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="container">
+            <h1>Discord Remote Control Bot</h1>
+            <p class="lead">Securely manage and monitor your systems remotely through Discord</p>
+        </div>
+    </div>
+    <div class="container mt-5">
+        <div class="status-container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="status-indicator status-online" id="bot-status"></span>
+                    <span id="status-text">Bot Status: Checking...</span>
+                </div>
+                <button class="btn btn-primary" id="refresh-status">Refresh Status</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <h2>Bot Overview</h2>
+                    <p>
+                        This Discord bot allows you to remotely control and monitor systems through Discord slash commands.
+                        The bot provides a secure way to manage your computers, view system information, capture screenshots,
+                        browse files, and execute commands - all through Discord's interface.
+                    </p>
+                    
+                    <div class="alert alert-info" role="alert">
+                        <h4 class="alert-heading">Getting Started</h4>
+                        <p>To use this bot, you need to:</p>
+                        <ol>
+                            <li>Invite the bot to your Discord server</li>
+                            <li>Use the <span class="command-name">/connect</span> command to establish a connection</li>
+                            <li>You're ready to use all available commands!</li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2>Available Commands</h2>
+                    <table class="command-table">
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="command-name">/connect</td>
+                                <td>Connect to a remote computer</td>
+                            </tr>
+                            <tr>
+                                <td class="command-name">/disconnect</td>
+                                <td>Disconnect from the current remote computer</td>
+                            </tr>
+                            <tr>
+                                <td class="command-name">/sysinfo</td>
+                                <td>Get detailed system information</td>
+                            </tr>
+                            <tr>
+                                <td class="command-name">/screenshot</td>
+                                <td>Take a screenshot of the remote system</td>
+                            </tr>
+                            <tr>
+                                <td class="command-name">/processes</td>
+                                <td>List top processes by memory usage</td>
+                            </tr>
+                            <tr>
+                                <td class="command-name">/kill &lt;pid&gt;</td>
+                                <td>Kill a process by PID</td>
+                            </tr>
+                            <tr>
+                                <td class="command-name">/ls [path]</td>
+                                <td>List files in a directory</td>
+                            </tr>
+                            <tr>
+                                <td class="command-name">/cd &lt;path&gt;</td>
+                                <td>Change working directory</td>
+                            </tr>
+                            <tr>
+                                <td class="command-name">/cat &lt;file&gt;</td>
+                                <td>View the contents of a file</td>
+                            </tr>
+                            <tr>
+                                <td class="command-name">/exec &lt;command&gt;</td>
+                                <td>Execute a shell command</td>
+                            </tr>
+                            <tr>
+                                <td class="command-name">/help</td>
+                                <td>Show all available commands</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <h3>Current System</h3>
+                    <div class="system-info">
+                        <div class="info-box">
+                            <h4>Hostname</h4>
+                            <div id="hostname">Loading...</div>
+                        </div>
+                        <div class="info-box">
+                            <h4>CPU Usage</h4>
+                            <div id="cpu-usage">Loading...</div>
+                        </div>
+                    </div>
+                    <div class="system-info">
+                        <div class="info-box">
+                            <h4>Memory</h4>
+                            <div id="memory-usage">Loading...</div>
+                        </div>
+                        <div class="info-box">
+                            <h4>Uptime</h4>
+                            <div id="uptime">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Bot Logs</h3>
+                    <div class="logs" id="bot-logs">
+                        <div><span class="timestamp">Loading logs...</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <div class="container">
+            <p>Discord Remote Control Bot &copy; 2023</p>
+            <p>This bot is for educational purposes only. Always use responsibly and legally.</p>
+        </div>
+    </footer>
+    <script>
+        // Bot status simulation
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusIndicator = document.getElementById('bot-status');
+            const statusText = document.getElementById('status-text');
+            const refreshButton = document.getElementById('refresh-status');
+            const logsContainer = document.getElementById('bot-logs');
+            
+            // System info elements
+            const hostnameElement = document.getElementById('hostname');
+            const cpuUsageElement = document.getElementById('cpu-usage');
+            const memoryUsageElement = document.getElementById('memory-usage');
+            const uptimeElement = document.getElementById('uptime');
+            
+            function updateStatus() {
+                fetch('/api/status')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'online') {
+                            statusIndicator.className = 'status-indicator status-online';
+                            statusText.textContent = 'Bot Status: Online';
+                        } else {
+                            statusIndicator.className = 'status-indicator status-offline';
+                            statusText.textContent = 'Bot Status: Offline';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching status:', error);
+                        statusIndicator.className = 'status-indicator status-offline';
+                        statusText.textContent = 'Bot Status: Error';
+                    });
+            }
+            
+            function updateSystemInfo() {
+                fetch('/api/sysinfo')
+                    .then(response => response.json())
+                    .then(data => {
+                        hostnameElement.textContent = data.hostname;
+                        cpuUsageElement.textContent = data.cpuUsage;
+                        memoryUsageElement.textContent = `${data.memory.used} GB / ${data.memory.total} GB (${data.memory.percent})`;
+                        uptimeElement.textContent = data.uptime;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching system info:', error);
+                        hostnameElement.textContent = 'Error loading data';
+                        cpuUsageElement.textContent = 'Error loading data';
+                        memoryUsageElement.textContent = 'Error loading data';
+                        uptimeElement.textContent = 'Error loading data';
+                    });
+            }
+            
+            function updateLogs() {
+                fetch('/api/logs')
+                    .then(response => response.json())
+                    .then(logs => {
+                        logsContainer.innerHTML = '';
+                        logs.forEach(log => {
+                            const logElement = document.createElement('div');
+                            const timestampSpan = document.createElement('span');
+                            timestampSpan.className = 'timestamp';
+                            timestampSpan.textContent = log.timestamp;
+                            
+                            const messageSpan = document.createElement('span');
+                            messageSpan.className = `log-${log.type}`;
+                            messageSpan.textContent = log.message;
+                            
+                            logElement.appendChild(timestampSpan);
+                            logElement.appendChild(messageSpan);
+                            logsContainer.appendChild(logElement);
+                        });
+                        
+                        logsContainer.scrollTop = logsContainer.scrollHeight;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching logs:', error);
+                        logsContainer.innerHTML = '<div><span class="timestamp">Error</span><span class="log-error">Failed to load logs</span></div>';
+                    });
+            }
+            
+            // Initial updates
+            updateStatus();
+            updateSystemInfo();
+            updateLogs();
+            
+            // Set up periodic updates
+            setInterval(updateStatus, 30000); // Every 30 seconds
+            setInterval(updateSystemInfo, 10000); // Every 10 seconds
+            setInterval(updateLogs, 5000); // Every 5 seconds
+            
+            // Refresh button
+            refreshButton.addEventListener('click', function() {
+                updateStatus();
+                updateSystemInfo();
+                updateLogs();
+            });
+        });
+    </script>
+</body>
+</html>
